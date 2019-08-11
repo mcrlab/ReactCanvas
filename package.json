@@ -19,7 +19,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "proxy": "http://lantern.mcrlab.co.uk",
+  "proxy": "http://localhost:80",
   "browserslist": {
     "production": [
       ">0.2%",

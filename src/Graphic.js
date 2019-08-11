@@ -1,66 +1,74 @@
 import React from 'react';
-
-function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
-  }
-
+import Light from './Light';
   
-class Light {
-
-    constructor(color, position){
-        let object = hexToRgb(color);
-        this.r = object.r;
-        this.g = object.g;
-        this.b = object.b;
-        this.position = position;
-    }
-
-    paint(ctx){
-        ctx.beginPath();
-        let opacity = 1
-        let radius = 30;
-        var sizeWidth = ctx.canvas.clientWidth;
-        var sizeHeight = ctx.canvas.clientHeight;
-
-        let location = {
-            x: (sizeWidth - radius) * this.position.x + (radius / 2),
-            y: (sizeHeight - radius) - ((sizeHeight - radius) * this.position.y + (radius / 2))
-        };
-
-        var gradient = ctx.createRadialGradient(location.x, location.y, 0, location.x, location.y, radius);
-        gradient.addColorStop(0, "rgba("+this.r+", "+this.g+", "+this.b+", "+opacity+")");
-        gradient.addColorStop(0.5, "rgba("+this.r+", "+this.g+", "+this.b+", "+opacity+")");
-        gradient.addColorStop(1, "rgba("+this.r+", "+this.g+", "+this.b+", 0)");
-    
-        ctx.fillStyle = gradient;
-        ctx.arc(location.x, location.y, radius, Math.PI*2, false);
-        ctx.fill();
-    }
-}
-
 export default class Graphic extends React.Component {
     constructor(props) {
       super(props);
+      
+      this.state = {
+        x:0,
+        y:0,
+        touching: false,
+        color: "000000"
+      }
+      
       this.paint = this.paint.bind(this);
+      this.handleOnTouchStart = this.handleOnTouchStart.bind(this);
+      this.handleOnTouchMove = this.handleOnTouchMove.bind(this);
+      this.handleOnTouchEnd = this.handleOnTouchEnd.bind(this);
     }
   
     componentDidUpdate() {
       this.paint();
     }
   
+    handleOnTouchStart(event){
+      let x = ((event.touches[0].clientX / this.props.width).toFixed(2));
+      let y = 1 - ((event.touches[0].clientY / this.props.height).toFixed(2));
+      this.setState({
+        x: x,
+        y: y,
+        touching: false
+      });
+    }
+
+    handleOnTouchMove(event){
+      let x = ((event.touches[0].clientX / this.props.width).toFixed(2));
+      let y = 1 - ((event.touches[0].clientY / this.props.height).toFixed(2));
+      this.setState({
+        x: x,
+        y: y,
+        touching: true
+      });
+    }
+
+    handleOnTouchEnd(event){
+      fetch("/lights/position/LIGHT_ID",{
+        method : "PUT",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({x:this.state.x, y:this.state.y})
+        })
+      .then(response=> response.json())
+      .then(json => console.log(json));
+      this.setState({
+        touching: false
+      });
+    }
+
     paint() {
       const { width, height, rotation } = this.props;
       const context = this.refs.canvas.getContext("2d");
       context.clearRect(0, 0, width, height);
       context.save();
+ 
       this.props.lights.forEach((lightPoint)=>{
         new Light(lightPoint.color, lightPoint.position).paint(context);
       });
+      if(this.state.touching){
+        new Light("FF0000", {x: this.state.x, y: this.state.y}).paint(context)
+      }
       context.restore();
     }
   
@@ -68,6 +76,9 @@ export default class Graphic extends React.Component {
       const { width, height } = this.props;
       return (
         <canvas
+          onTouchStart={this.handleOnTouchStart}
+          onTouchMove={this.handleOnTouchMove}
+          onTouchEnd = {this.handleOnTouchEnd}
           ref="canvas"
           width={width}
           height={height}
