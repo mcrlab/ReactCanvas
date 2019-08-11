@@ -24,16 +24,24 @@ class App extends React.Component {
     requestAnimationFrame(this.tick);
   }
 
+  updateDimensions() {
+    let update_width  = window.innerWidth;
+    let update_height = window.innerHeight;
+    this.setState({ width: update_width, height: update_height });
+  }
+
   componentDidMount(){
     requestAnimationFrame(this.tick);
   }
 
   componentWillMount() {
-
+    this.updateDimensions();
+    window.addEventListener("resize", this.updateDimensions.bind(this));
 
     client.onopen = () => {
       console.log('WebSocket Client Connected');
     };
+
     client.onmessage = (message) => {
       const dataFromServer = JSON.parse(message.data);
       console.log(dataFromServer);
@@ -65,13 +73,16 @@ class App extends React.Component {
       }
     };
   }
+  
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions.bind(this));
+  }
 
   render(){
     return (
       <div className="App">
         <header className="App-header">
-          <LightList lights={this.state.lights} />
-          <Graphic lights={this.state.lights} width={500} height={500} />
+          <Graphic lights={this.state.lights} width={this.state.width} height={this.state.height} />
         </header>
       </div>
     );

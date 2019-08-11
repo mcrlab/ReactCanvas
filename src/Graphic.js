@@ -29,7 +29,7 @@ class Light {
 
         let location = {
             x: (sizeWidth - radius) * this.position.x + (radius / 2),
-            y: (sizeHeight - radius) * this.position.y + (radius / 2)
+            y: (sizeHeight - radius) - ((sizeHeight - radius) * this.position.y + (radius / 2))
         };
 
         var gradient = ctx.createRadialGradient(location.x, location.y, 0, location.x, location.y, radius);
