@@ -44,7 +44,7 @@ class App extends React.Component {
 
     client.onmessage = (message) => {
       const dataFromServer = JSON.parse(message.data);
-      console.log(dataFromServer);
+
       switch(dataFromServer.instruction){
         case 'ALL_LIGHTS':
           let allLights = [];
@@ -59,7 +59,6 @@ class App extends React.Component {
         case 'UPDATE':
             let lights = this.state.lights;
             let updated = lights.map((item, index) => {
-              console.log(item);
               if (item.id !==dataFromServer.data.id) {
                 return item
               }
@@ -70,6 +69,8 @@ class App extends React.Component {
               lights: updated
             });
 
+            break;
+        default:
             break;
       }
     };
