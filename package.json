@@ -4,11 +4,14 @@
   "private": true,
   "dependencies": {
     "react": "^16.8.6",
+    "react-color": "^2.17.3",
     "react-dom": "^16.8.6",
-    "react-scripts": "3.0.1"
+    "react-scripts": "3.0.1",
+    "websocket": "^1.0.29",
+    "ws": "^7.1.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "HOST=0.0.0.0 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -16,6 +19,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
+  "proxy": "http://localhost",
   "browserslist": {
     "production": [
       ">0.2%",
