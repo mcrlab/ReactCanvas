@@ -11,7 +11,7 @@ export default class Graphic extends React.Component {
         touching: false,
         color: "000000"
       }
-      
+
       this.paint = this.paint.bind(this);
       this.handleOnTouchStart = this.handleOnTouchStart.bind(this);
       this.handleOnTouchMove = this.handleOnTouchMove.bind(this);
@@ -23,51 +23,65 @@ export default class Graphic extends React.Component {
     }
   
     handleOnTouchStart(event){
-      let x = ((event.touches[0].clientX / this.props.width).toFixed(2));
-      let y = 1 - ((event.touches[0].clientY / this.props.height).toFixed(2));
-      this.setState({
-        x: x,
-        y: y,
-        touching: false
+      let x = event.touches[0].clientX;
+      let y = event.touches[0].clientY;
+
+      let filteredLights = this.props.lights.filter((light)=> {
+        let lightX = light.position.x * this.props.width;
+        let lightY = light.position.y * this.props.height;
+        let a = (
+          (x > (lightX-25) && x < (lightX + 25)) && 
+          (y > (lightY-25) && y < (lightY + 25)) 
+        );
+        return a;
       });
+
+
+      if(filteredLights[0]){
+        let activeLight =  filteredLights[0];
+        this.setState({
+          x: ((event.touches[0].clientX / this.props.width)),
+          y: ((event.touches[0].clientY / this.props.height)),
+          touching: true,
+          activeLight: activeLight
+        });
+  
+      }
+      
     }
 
     handleOnTouchMove(event){
-      let x = ((event.touches[0].clientX / this.props.width).toFixed(2));
-      let y = 1 - ((event.touches[0].clientY / this.props.height).toFixed(2));
+      let x = ((event.touches[0].clientX / this.props.width));
+      let y = ((event.touches[0].clientY / this.props.height));
       this.setState({
         x: x,
-        y: y,
-        touching: true
+        y: y
       });
     }
 
     handleOnTouchEnd(event){
-      fetch("/lights/position/LIGHT_ID",{
-        method : "PUT",
-        headers: {
-          "content-type": "application/json"
-        },
-        body: JSON.stringify({x:this.state.x, y:this.state.y})
-        })
-      .then(response=> response.json())
-      .then(json => console.log(json));
+      
+      if(this.state.activeLight){
+        this.state.activeLight.setPosition({x:parseFloat(this.state.x), y:parseFloat(this.state.y)});
+      }
       this.setState({
-        touching: false
+        touching: false,
+        activeLight: null
       });
     }
 
     paint() {
-      const { width, height, rotation } = this.props;
+      const { width, height } = this.props;
       const context = this.refs.canvas.getContext("2d");
       context.clearRect(0, 0, width, height);
       context.save();
  
       this.props.lights.forEach((lightPoint)=>{
-        new Light(lightPoint.color, lightPoint.position).paint(context);
+        lightPoint.paint(context);
       });
+
       if(this.state.touching){
-        new Light("FF0000", {x: this.state.x, y: this.state.y}).paint(context)
+        new Light(null, "FF0000", {x: this.state.x, y: this.state.y}).paint(context)
       }
       context.restore();
     }

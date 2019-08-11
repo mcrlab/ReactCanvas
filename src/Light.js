@@ -10,14 +10,28 @@ function hexToRgb(hex) {
 
 export default class Light {
 
-    constructor(color, position){
+    constructor(id, color, position){
+
         let object = hexToRgb(color);
+        this.id = id;
         this.r = object.r;
         this.g = object.g;
         this.b = object.b;
         this.position = position;
     }
 
+
+    setPosition(position){
+        fetch("/lights/position/LIGHT_ID",{
+            method : "PUT",
+            headers: {
+              "content-type": "application/json"
+            },
+            body: JSON.stringify(position)
+            })
+          .then(response=> response.json())
+          .then(json => console.log(json));
+    }
     
     paint(ctx){
         ctx.beginPath();
@@ -27,8 +41,8 @@ export default class Light {
         var sizeHeight = ctx.canvas.clientHeight;
 
         let location = {
-            x: (sizeWidth - radius) * this.position.x + (radius / 2),
-            y: (sizeHeight - radius) - ((sizeHeight - radius) * this.position.y + (radius / 2))
+            x: sizeWidth * this.position.x,
+            y: sizeHeight * this.position.y 
         };
 
         var gradient = ctx.createRadialGradient(location.x, location.y, 0, location.x, location.y, radius);

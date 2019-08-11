@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import Graphic from './Graphic';
+import Light from './Light';
 
 const client = new W3CWebSocket(`ws://localhost`);
 
@@ -46,21 +47,24 @@ class App extends React.Component {
       console.log(dataFromServer);
       switch(dataFromServer.instruction){
         case 'ALL_LIGHTS':
+          let allLights = [];
+          dataFromServer.data.lights.forEach((light)=>{
+            let newLight = new Light(light.id, light.color, light.position);
+            allLights.push(newLight);
+          });
           this.setState({
-            lights: dataFromServer.data.lights
+            lights: allLights
           });
           break;
         case 'UPDATE':
             let lights = this.state.lights;
             let updated = lights.map((item, index) => {
+              console.log(item);
               if (item.id !==dataFromServer.data.id) {
                 return item
               }
           
-              return {
-                ...item,
-                ...dataFromServer.data
-              }
+              return new Light(dataFromServer.data.id, dataFromServer.data.color, dataFromServer.data.position);
             });
             this.setState({
               lights: updated
