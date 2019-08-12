@@ -59,11 +59,11 @@ class App extends React.Component {
         case 'UPDATE':
             let lights = this.state.lights;
             let updated = lights.map((item, index) => {
-              if (item.id !==dataFromServer.data.id) {
-                return item
+              if (item.id ===dataFromServer.data.id) {
+                item.update(dataFromServer.data.color, dataFromServer.data.position, dataFromServer.data.time, dataFromServer.data.delay);
               }
-          
-              return new Light(dataFromServer.data.id, dataFromServer.data.color, dataFromServer.data.position);
+              return item
+             
             });
             this.setState({
               lights: updated

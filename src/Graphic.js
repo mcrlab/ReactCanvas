@@ -39,6 +39,7 @@ export default class Graphic extends React.Component {
 
       if(filteredLights[0]){
         let activeLight =  filteredLights[0];
+
         this.setState({
           x: ((event.touches[0].clientX / this.props.width)),
           y: ((event.touches[0].clientY / this.props.height)),
@@ -63,6 +64,7 @@ export default class Graphic extends React.Component {
       
       if(this.state.activeLight){
         this.state.activeLight.setPosition({x:parseFloat(this.state.x), y:parseFloat(this.state.y)});
+
       }
       this.setState({
         touching: false,
