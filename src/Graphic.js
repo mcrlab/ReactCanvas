@@ -39,11 +39,13 @@ export default class Graphic extends React.Component {
 
       if(filteredLights[0]){
         let activeLight =  filteredLights[0];
-
+        let currentColor = activeLight.color;
+        activeLight.setColor("FF0000");
         this.setState({
           x: ((event.touches[0].clientX / this.props.width)),
           y: ((event.touches[0].clientY / this.props.height)),
           touching: true,
+          color: currentColor,
           activeLight: activeLight
         });
   
@@ -63,8 +65,9 @@ export default class Graphic extends React.Component {
     handleOnTouchEnd(event){
       
       if(this.state.activeLight){
-        this.state.activeLight.setPosition({x:parseFloat(this.state.x), y:parseFloat(this.state.y)});
 
+        this.state.activeLight.setPosition({x:parseFloat(this.state.x), y:parseFloat(this.state.y)});
+        this.state.activeLight.setColor(this.state.color, 0);
       }
       this.setState({
         touching: false,

@@ -11,6 +11,10 @@ function hexToRgb(hex) {
     return Math.floor((1-u) * a + u * b);
   };
 
+
+const LIGHT_WIDTH = 100;
+const LIGHT_HEIGHT = 100;
+
 export default class Light {
 
     constructor(id, color, position){
@@ -22,7 +26,10 @@ export default class Light {
         this.animationDelay = 0;
         this.lastUpdateTime = new Date().getTime();
         this.isTouching = false;
+        this.img = new Image();
+        this.img.src = "light.png";
     }
+
 
     update(color, position, animationTime, animationDelay){
       this.targetColor = color;
@@ -31,6 +38,20 @@ export default class Light {
       this.position = position;
       this.lastUpdateTime = new Date().getTime();
     }
+
+    setColor(color, time){
+      fetch(`/lights/${this.id}`,{
+          method : "PUT",
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify({
+            "color": color,
+            "time": time || 0
+          })
+          })
+        .then(response=> response.json());
+  }
 
     setPosition(position){
         fetch(`/lights/position/${this.id}`,{
@@ -68,7 +89,7 @@ export default class Light {
 
         ctx.beginPath();
         let opacity = 1
-        let radius = 50;
+        let radius = LIGHT_WIDTH * 0.22;
         var sizeWidth = ctx.canvas.clientWidth;
         var sizeHeight = ctx.canvas.clientHeight;
 
@@ -78,15 +99,17 @@ export default class Light {
         };
 
 
+
         var gradient = ctx.createRadialGradient(location.x, location.y, 0, location.x, location.y, radius);
         gradient.addColorStop(0, "rgba("+object.r+", "+object.g+", "+object.b+", "+opacity+")");
         gradient.addColorStop(0.5, "rgba("+object.r+", "+object.g+", "+object.b+", "+opacity+")");
-        gradient.addColorStop(1, "rgba("+object.r+", "+object.g+", "+object.b+", 0)");
+        gradient.addColorStop(1, "rgba("+object.r+", "+object.g+", "+object.b+", 1)");
     
         if(!this.isTouching){
           ctx.fillStyle = gradient;
           ctx.arc(location.x, location.y, radius, Math.PI*2, false);
           ctx.fill();
+          ctx.drawImage(this.img, location.x - (LIGHT_WIDTH * 0.5), location.y-(LIGHT_HEIGHT * 0.35), LIGHT_WIDTH, LIGHT_HEIGHT);
         }
     }
 }

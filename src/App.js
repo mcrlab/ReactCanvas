@@ -4,7 +4,7 @@ import { w3cwebsocket as W3CWebSocket } from "websocket";
 import Graphic from './Graphic';
 import Light from './Light';
 
-const client = new W3CWebSocket(`ws://localhost`);
+const client = new W3CWebSocket(`ws://lantern.mcrlab.co.uk`);
 
 
 
@@ -83,7 +83,7 @@ class App extends React.Component {
   render(){
     return (
       <div className="App">
-        <header className="App-header">
+        <header className="App-header wrapper">
           <Graphic lights={this.state.lights} width={this.state.width} height={this.state.height} />
         </header>
       </div>
