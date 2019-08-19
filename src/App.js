@@ -3,8 +3,9 @@ import './App.css';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import Graphic from './Graphic';
 import Light from './Light';
-
-const client = new W3CWebSocket(`ws://lantern.mcrlab.co.uk`);
+import ToolBar from './ToolBar'
+import SimpleCard from './Card'
+const client = new W3CWebSocket(`ws://localhost`);
 
 
 
@@ -13,9 +14,17 @@ class App extends React.Component {
     super(props);
     this.state = {
         lights: [],
-        rotation: 0
+        rotation: 0,
+        dragMode: false,
+        color: 'FF00FF',
+        animationTime: 0,
+        optionsScreen: false
     };
     this.tick = this.tick.bind(this);
+    this.setColor = this.setColor.bind(this);
+    this.setDragMode = this.setDragMode.bind(this);
+    this.setAnimationTime = this.setAnimationTime.bind(this);
+    this.handleSettings = this.handleSettings.bind(this);
   }
   
   tick() {
@@ -75,17 +84,31 @@ class App extends React.Component {
       }
     };
   }
-  
+  setDragMode(event) {
+    this.setState({ 
+      dragMode: !this.state.dragMode
+    });
+  }
+  setColor(color){
+    this.setState({ color: color.hex.replace('#','') });
+  }
+  setAnimationTime(animationTime){
+    this.setState({animationTime})
+  }
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
+  }
+  handleSettings(optionsScreen){
+    this.setState({optionsScreen});
   }
 
   render(){
     return (
       <div className="App">
-        <header className="App-header wrapper">
-          <Graphic lights={this.state.lights} width={this.state.width} height={this.state.height} />
-        </header>
+
+          <ToolBar dragMode={this.state.dragMode} setDragMode={this.setDragMode} color={this.state.color} setColor={this.setColor} handleOpen={this.handleSettings} animationTime={this.state.animationTime} setAnimationTime={this.setAnimationTime}/>
+          <Graphic dragMode={this.state.dragMode} color={this.state.color} animationTime={this.state.animationTime} lights={this.state.lights} width={this.state.width} height={this.state.height} />
+          <SimpleCard show={this.state.optionsScreen} handleClose={this.handleSettings} animationTime={this.state.animationTime} setAnimationTime={this.setAnimationTime} color={this.state.color} setColor={this.setColor}/>
       </div>
     );
   }

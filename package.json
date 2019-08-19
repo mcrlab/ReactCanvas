@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.3.2",
+    "material-design-icons": "^3.0.1",
     "react": "^16.8.6",
     "react-color": "^2.17.3",
     "react-dom": "^16.8.6",
@@ -19,7 +21,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "proxy": "http://lantern.mcrlab.co.uk",
+  "proxy": "http://localhost",
   "browserslist": {
     "production": [
       ">0.2%",

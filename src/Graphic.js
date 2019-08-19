@@ -9,13 +9,15 @@ export default class Graphic extends React.Component {
         x:0,
         y:0,
         touching: false,
-        color: "000000"
+        color: "000000",
+        debounce: new Date().getTime()
       }
 
       this.paint = this.paint.bind(this);
       this.handleOnTouchStart = this.handleOnTouchStart.bind(this);
       this.handleOnTouchMove = this.handleOnTouchMove.bind(this);
       this.handleOnTouchEnd = this.handleOnTouchEnd.bind(this);
+      
     }
   
     componentDidUpdate() {
@@ -23,6 +25,11 @@ export default class Graphic extends React.Component {
     }
   
     handleOnTouchStart(event){
+      const now = new Date().getTime();
+
+      if(now < this.state.debounce + 100){
+        return;
+      }
       let x = event.touches[0].clientX;
       let y = event.touches[0].clientY;
 
@@ -37,20 +44,26 @@ export default class Graphic extends React.Component {
       });
 
 
-      if(filteredLights[0]){
-        let activeLight =  filteredLights[0];
-        let currentColor = activeLight.color;
-        activeLight.setColor("FF0000");
-        this.setState({
-          x: ((event.touches[0].clientX / this.props.width)),
-          y: ((event.touches[0].clientY / this.props.height)),
-          touching: true,
-          color: currentColor,
-          activeLight: activeLight
-        });
-  
+      if(this.props.dragMode){
+
+        if(filteredLights[0]){
+          let activeLight =  filteredLights[0];
+          let currentColor = activeLight.color;
+          activeLight.setColor("FF0000");
+          this.setState({
+            x: ((event.touches[0].clientX / this.props.width)),
+            y: ((event.touches[0].clientY / this.props.height)),
+            touching: true,
+            color: currentColor,
+            activeLight: activeLight
+          });
+    
+        }
+      } else {
+        if(filteredLights[0]){
+          filteredLights[0].setColor(this.props.color, this.props.animationTime);
+        }
       }
-      
     }
 
     handleOnTouchMove(event){
@@ -63,15 +76,14 @@ export default class Graphic extends React.Component {
     }
 
     handleOnTouchEnd(event){
-      
+      const now = new Date().getTime();
       if(this.state.activeLight){
-
-        this.state.activeLight.setPosition({x:parseFloat(this.state.x), y:parseFloat(this.state.y)});
-        this.state.activeLight.setColor(this.state.color, 0);
+        this.state.activeLight.setPosition({x:parseFloat(this.state.x), y:parseFloat(this.state.y), color:this.state.color});
       }
       this.setState({
         touching: false,
-        activeLight: null
+        activeLight: null,
+        debounce: now
       });
     }
 

@@ -4,34 +4,8 @@ body {
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -moz-osx-font-smoothing: grayscale; 
   /* Disables pull-to-refresh but allows overscroll glow effects. */
   overscroll-behavior-y: contain;
-}
-.body,
-.wrapper {
-  /* Break the flow */
-  position: absolute;
-  top: 0px;
-  overscroll-behavior: none;
-
-  /* Give them all the available space */
-  width: 100%;
-  height: 100%;
-
-  /* Remove the margins if any */
-  margin: 0;
-
-  /* Allow them to scroll down the document */
-  overflow-y: hidden;
-}
-
-.body {
-  /* Sending body at the bottom of the stack */
-  z-index: 1;
-}
-
-.wrapper {
-  /* Making the wrapper stack above the body */
-  z-index: 2;
+  background-color: #282c34;
 }

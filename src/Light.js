@@ -49,17 +49,18 @@ export default class Light {
             "color": color,
             "time": time || 0
           })
-          })
+        })
         .then(response=> response.json());
   }
 
-    setPosition(position){
+    setPosition(update){
+        this.color = update.color;
         fetch(`/lights/position/${this.id}`,{
             method : "PUT",
             headers: {
               "content-type": "application/json"
             },
-            body: JSON.stringify(position)
+            body: JSON.stringify(update)
             })
           .then(response=> response.json());
     }
