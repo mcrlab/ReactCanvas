@@ -1,6 +1,8 @@
 import React from 'react';
 import Light from './Light';
   
+
+
 export default class Graphic extends React.Component {
     constructor(props) {
       super(props);
@@ -24,15 +26,7 @@ export default class Graphic extends React.Component {
       this.paint();
     }
   
-    handleOnTouchStart(event){
-      const now = new Date().getTime();
-
-      if(now < this.state.debounce + 100){
-        return;
-      }
-      let x = event.touches[0].clientX;
-      let y = event.touches[0].clientY;
-
+    isTouchinglight(x,y){
       let filteredLights = this.props.lights.filter((light)=> {
         let lightX = light.position.x * this.props.width;
         let lightY = light.position.y * this.props.height;
@@ -42,26 +36,69 @@ export default class Graphic extends React.Component {
         );
         return a;
       });
+      if(filteredLights.length > 0){
+        return filteredLights[0]
+      } else {
+        return null
+      }
+    }
 
+    handleOnTouchStart(event){
+      const now = new Date().getTime();
+
+      if(now < this.state.debounce + 100){
+        return;
+      }
+      let x = event.touches[0].clientX;
+      let y = event.touches[0].clientY;
+      let scaledX = x / this.props.width;
+      let scaledY = y / this.props.height;
+
+      let light = this.isTouchinglight(x,y);
 
       if(this.props.dragMode){
 
-        if(filteredLights[0]){
-          let activeLight =  filteredLights[0];
-          let currentColor = activeLight.color;
-          activeLight.setColor("FF0000");
+        if(light){
+          let currentColor = light.currentColor;
+          light.setColor("FF0000");
           this.setState({
-            x: ((event.touches[0].clientX / this.props.width)),
-            y: ((event.touches[0].clientY / this.props.height)),
+            x: scaledX,
+            y: scaledY,
             touching: true,
             color: currentColor,
-            activeLight: activeLight
+            activeLight: light
           });
     
         }
       } else {
-        if(filteredLights[0]){
-          filteredLights[0].setColor(this.props.color, this.props.animationTime);
+        if(light){
+          light.setColor(this.props.color, this.props.animationTime);
+        } else {
+          let request = {
+            lights: []
+          };
+          this.props.lights.map((light)=> {
+            
+            let distanceX = light.position.x - scaledX;
+            let distanceY = light.position.y - scaledY;
+            let distance = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+            let update = {
+              id: light.id,
+              color: this.props.color,
+              time: this.props.animationTime,
+              delay: distance * 1000,
+            }
+            request.lights.push(update)
+          });
+
+          fetch(`/lights/`,{
+            method : "PUT",
+            headers: {
+              "content-type": "application/json"
+            },
+            body: JSON.stringify(request)
+          })
+          .then(response=> response.json());
         }
       }
     }
@@ -92,7 +129,13 @@ export default class Graphic extends React.Component {
       const context = this.refs.canvas.getContext("2d");
       context.clearRect(0, 0, width, height);
       context.save();
- 
+      if(this.props.dragMode){
+        context.textBaseline = 'middle';
+        context.textAlign = "center";
+        context.fillStyle = "white";
+        context.font = "60px Arial";
+        context.fillText("Drag Mode", width / 2, height / 2);
+      }
       this.props.lights.forEach((lightPoint)=>{
         lightPoint.paint(context);
       });

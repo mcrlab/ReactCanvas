@@ -7,6 +7,21 @@ function hexToRgb(hex) {
     } : null;
   }
 
+  function RGBObjectToHex(colorObject){
+    let hex = [];
+    hex.push(intToHex(colorObject.r));
+    hex.push(intToHex(colorObject.g));
+    hex.push(intToHex(colorObject.b));
+    return hex.join('');
+}
+
+function intToHex(color){
+  let char = color.toString(16);
+  if(char.length == 1){
+    char = "0"+char;
+  }
+  return char.toUpperCase();
+}
   function lerp(a, b, u){
     return Math.floor((1-u) * a + u * b);
   };
@@ -19,7 +34,8 @@ export default class Light {
 
     constructor(id, color, position){
         this.id = id;
-        this.color = color;
+        this.previousColor = color;
+        this.currentColor =  color;
         this.targetColor = color;
         this.position = position;
         this.animationTime = 0;
@@ -32,6 +48,7 @@ export default class Light {
 
 
     update(color, position, animationTime, animationDelay){
+      this.previousColor = this.currentColor;
       this.targetColor = color;
       this.animationTime = animationTime || 0;
       this.animationDelay = animationDelay  || 0
@@ -54,7 +71,8 @@ export default class Light {
   }
 
     setPosition(update){
-        this.color = update.color;
+      console.log(update);
+        this.currentColor = update.color;
         fetch(`/lights/position/${this.id}`,{
             method : "PUT",
             headers: {
@@ -74,17 +92,18 @@ export default class Light {
 
         let object = {};
         if(now < animationStartTime){
-          object = hexToRgb(this.color);  
+          object = hexToRgb(this.currentColor);  
         } else if(now > animationStartTime && now < animationEndTime){
 
-          let r = lerp( hexToRgb(this.color).r, hexToRgb(this.targetColor).r, elapsedTime / this.animationTime);
-          let g = lerp( hexToRgb(this.color).g, hexToRgb(this.targetColor).g, elapsedTime / this.animationTime);
-          let b = lerp( hexToRgb(this.color).b, hexToRgb(this.targetColor).b, elapsedTime / this.animationTime);
+          let r = lerp( hexToRgb(this.previousColor).r, hexToRgb(this.targetColor).r, elapsedTime / this.animationTime);
+          let g = lerp( hexToRgb(this.previousColor).g, hexToRgb(this.targetColor).g, elapsedTime / this.animationTime);
+          let b = lerp( hexToRgb(this.previousColor).b, hexToRgb(this.targetColor).b, elapsedTime / this.animationTime);
           object = {r,g,b};
+          this.currentColor = RGBObjectToHex(object);
         } else {
 
-          this.color = this.targetColor;
-          object = hexToRgb(this.color);         
+          this.currentColor = this.targetColor;
+          object = hexToRgb(this.currentColor);         
         }
 
 
