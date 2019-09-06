@@ -1,6 +1,6 @@
 import React from 'react';
 import Light from './Light';
-  
+import API_URL from './url'  
 
 
 export default class Graphic extends React.Component {
@@ -44,6 +44,8 @@ export default class Graphic extends React.Component {
     }
 
     handleOnTouchStart(event){
+
+
       const now = new Date().getTime();
 
       if(now < this.state.debounce + 100){
@@ -86,12 +88,13 @@ export default class Graphic extends React.Component {
               id: light.id,
               color: this.props.color,
               time: this.props.animationTime,
-              delay: distance * 1000,
+              delay: distance * this.props.delay,
             }
             request.lights.push(update)
+            return 1;
           });
 
-          fetch(`/lights/`,{
+          fetch(`http://${API_URL}/`,{
             method : "PUT",
             headers: {
               "content-type": "application/json"
@@ -104,6 +107,7 @@ export default class Graphic extends React.Component {
     }
 
     handleOnTouchMove(event){
+
       let x = ((event.touches[0].clientX / this.props.width));
       let y = ((event.touches[0].clientY / this.props.height));
       this.setState({

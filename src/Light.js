@@ -1,3 +1,5 @@
+import API_URL from './url'
+
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -17,7 +19,7 @@ function hexToRgb(hex) {
 
 function intToHex(color){
   let char = color.toString(16);
-  if(char.length == 1){
+  if(char.length === 1){
     char = "0"+char;
   }
   return char.toUpperCase();
@@ -57,7 +59,7 @@ export default class Light {
     }
 
     setColor(color, time){
-      fetch(`/lights/${this.id}`,{
+      fetch(`http://${API_URL}/${this.id}`,{
           method : "PUT",
           headers: {
             "content-type": "application/json"
@@ -67,20 +69,26 @@ export default class Light {
             "time": time || 0
           })
         })
-        .then(response=> response.json());
+        .then(response=> {
+          let json = response.json()
+          console.log(json);
+        });
   }
 
     setPosition(update){
       console.log(update);
         this.currentColor = update.color;
-        fetch(`/lights/position/${this.id}`,{
+        fetch(`http://${API_URL}/position/${this.id}`,{
             method : "PUT",
             headers: {
               "content-type": "application/json"
             },
             body: JSON.stringify(update)
             })
-          .then(response=> response.json());
+          .then(response=> {
+            let json = response.json()
+            console.log(json);
+          });
     }
 
     paint(ctx){

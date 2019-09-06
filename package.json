@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.3.2",
+    "color": "^3.1.2",
     "material-design-icons": "^3.0.1",
     "react": "^16.8.6",
     "react-color": "^2.17.3",
@@ -21,7 +22,6 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "proxy": "http://localhost",
   "browserslist": {
     "production": [
       ">0.2%",
